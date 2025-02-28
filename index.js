@@ -35,7 +35,7 @@ function normalizeObject(obj) {
 async function unserialize(text) {
   const [_, serialized, _checksum] = text.match(/^(.*)(#[a-f0-9]{32}|[a-f0-9]{40})$/)
   const unserializer = new Unserializer(serialized)
-  unserializer.useEnumIndex = false;
+  // unserializer.useEnumIndex = false; // does not matter
   unserializer.allowUnregistered = true;
   unserializer.addTypeHints = true;
   const data = normalizeObject(unserializer.unserialize())
@@ -45,11 +45,11 @@ async function unserialize(text) {
 
 async function serialize(data) {
   const serializer = new Serializer()
-  serializer.useEnumIndex = false;
+  // serializer.useEnumIndex = false; // does not matter
   serializer.allowUnregistered = true;
   serializer.addTypeHints = true;
   serializer.serialize(data)
-  const serialized = serializer.toString()
+  const serialized = serializer.toString().replace("y4:Evo2gR", "y4:Evo2:0R").replace("y4:gameoy8:G", "y4:gamewy8:G")
   const checksum = await makeCRC(serialized)
   return serialized + '#' + checksum
 }
@@ -84,7 +84,7 @@ async function startSave(data) {
     label: 'Evoland 2 (Legendary edition)',
     content: await serialize({
       data: data.data || data,
-      game: { args: [], __enum_name: 'GameType', ...data.game, __enum_tag: 'Evo2' },
+      game: { 'GameType': 'Evo2' },
       time: data.time || Date.now()
     })
   })
