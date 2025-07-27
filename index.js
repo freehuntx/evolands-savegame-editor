@@ -93,6 +93,7 @@ async function startSave(data) {
   // Evolands 1 (Legendary edition)
   savegames.push({
     label: 'Evoland 1 (Legendary edition)',
+    disabled:true,
     content: await serialize({
       data: data.data || data,
       game: { args: [], __enum_name: 'GameType', ...data.game, __enum_tag: 'Evo1' },
