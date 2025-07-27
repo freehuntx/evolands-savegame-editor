@@ -43,13 +43,34 @@ async function unserialize(text) {
   return data
 }
 
+/**
+ * Converts objects in a haxe serialized string to their enum instances.
+ * 
+ * Objects that can be converted must have properties:
+ * - __enum_name
+ * - __enum_tag
+ * 
+ * Support limited for enums with no args. 
+ * These objects have property:
+ * - argsah: empty array of args.
+ * 
+ * @see https://haxe.org/manual/std-serialization-format.html
+ */
+function handleHaxeEnums(serialized) {
+  // match Haxe object: start with o, and with g
+  // limited to 0 args enums: "y4:argsah"
+  const enumRegex = /oy4:argsahy11:__enum_namey(\d+):([A-Za-z_][\w]*)y10:__enum_tagy(\d+):([A-Za-z_0-9]*?)g/g;
+  return serialized.replace(enumRegex, "wy$1:$2y$3:$4:0"); 
+}
+
 async function serialize(data) {
   const serializer = new Serializer()
   serializer.useEnumIndex = false;
   serializer.allowUnregistered = true;
   serializer.addTypeHints = true;
   serializer.serialize(data)
-  const serialized = serializer.toString()
+  let serialized = serializer.toString()
+  serialized = handleHaxeEnums(serialized)
   const checksum = await makeCRC(serialized)
   return serialized + '#' + checksum
 }
